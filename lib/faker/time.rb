@@ -49,8 +49,8 @@ module Faker
 
       def get_min_sec(type)
         case type
-          when 'min' do limit = DateTime.now.min
-          when 'sec' do limit = DateTime.now.sec
+          when 'min' then limit = DateTime.now.min
+          when 'sec' then limit = DateTime.now.sec
         end
         sample((0..59).to_a.select { |t| t <= limit || !bound_by_now })
       end
