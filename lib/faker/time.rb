@@ -11,8 +11,8 @@ module Faker
     }
 
     class << self
-      def between(from, to, period = :all, format = nil)
-        time = period == :between ? rand(from..to) : date_with_random_time(super(from, to), period)
+      def between(from, to, bound_by_now = false, period = :all, format = nil)
+        time = period == :between ? rand(from..to) : date_with_random_time(super(from, to), bound_by_now, period)
         time_with_format(time, format)
       end
 
@@ -26,25 +26,33 @@ module Faker
 
       private
 
-      def date_with_random_time(date, period)
-        ::Time.local(date.year, date.month, date.day, hours(period), minutes, seconds)
+      def date_with_random_time(date, bound_by_now, period)
+        ::Time.local(date.year, date.month, date.day, hours(bound_by_now, period), minutes(bound_by_now), seconds(bound_by_now))
       end
 
       def time_with_format(time, format)
         format.nil? ? time : I18n.l( DateTime.parse(time.to_s), :format => format )
       end
 
-      def hours(period)
+      def hours(bound_by_now, period)
         raise ArgumentError, 'invalid period' unless TIME_RANGES.has_key? period
-        sample(TIME_RANGES[period].to_a.select { |t| t <= DateTime.now.hour })
+        sample(TIME_RANGES[period].to_a.select { |t| t <= DateTime.now.hour || !bound_by_now })
       end
 
-      def minutes
-        sample((0..59).to_a.select { |t| t <= DateTime.now.min })
+      def minutes(bound_by_now)
+        get_min_sec('min')
       end
 
-      def seconds
-        sample((0..59).to_a.select { |t| t <= DateTime.now.sec })
+      def seconds(bound_by_now)
+        get_min_sec('sec')
+      end
+
+      def get_min_sec(type)
+        case type
+          when 'min' do limit = DateTime.now.min
+          when 'sec' do limit = DateTime.now.sec
+        end
+        sample((0..59).to_a.select { |t| t <= limit || !bound_by_now })
       end
     end
   end
