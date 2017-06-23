@@ -40,7 +40,7 @@ module Faker
       end
 
       def minutes
-        seconds
+        sample((0..59).to_a.select { |t| t <= DateTime.now.min })
       end
 
       def seconds
