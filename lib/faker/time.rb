@@ -40,19 +40,15 @@ module Faker
       end
 
       def minutes(bound_by_now)
-        get_min_sec('min', bound_by_now)
+        get_min_sec(:min, bound_by_now)
       end
 
       def seconds(bound_by_now)
-        get_min_sec('sec', bound_by_now)
+        get_min_sec(:sec, bound_by_now)
       end
 
       def get_min_sec(type, bound_by_now)
-        case type
-          when 'min' then limit = DateTime.now.min
-          when 'sec' then limit = DateTime.now.sec
-        end
-        sample((0..59).to_a.select { |t| t <= limit || !bound_by_now })
+        sample((0..59).to_a.select { |t| t <= DateTime.now.send(type) || !bound_by_now })
       end
     end
   end
